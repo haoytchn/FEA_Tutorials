@@ -1,5 +1,5 @@
 # ignore
-Results/*
+results/*
 
 # except
 !.gitkeep
