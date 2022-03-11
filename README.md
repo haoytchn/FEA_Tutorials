@@ -1,13 +1,14 @@
 # Introduction
 Ò»Ð©ÓÐÏÞÔª·ÂÕæÄ£ÐÍÊµÀý¡£
 
+Ç°´¦ÀíÊ¹ÓÃhypermesh¡£
+
 # Contents
 
--  <u>LS-Dyna</u>
-
-- <u>ABAQUS</u>
-- <u>Optistruct</u>
-- <u>Nastran</u>
+-  [<u>ABAQUS</u>](#ABAQUS)
+-  [<u>LS-Dyna</u>](#LS-Dyna)
+-  [<u>Optistruct</u>](#Optistruct)
+- [<u>Nastran</u>](#Nastran)
 
 
 
@@ -24,8 +25,86 @@
 ### Explicit:
 
 - ÊÊÓÃÓÚÇó½â·ÇÏßÐÔ¶¯Á¦Ñ§ÎÊÌâºÍ×¼¾²Ì¬ÎÊÌâ£¬ÌØ±ðÊÇÓÃÓÚÄ£Äâ¶ÌÔÝ¡¢Ë²Ê±µÄ¶¯Ì¬ÊÂ¼þ£¬Èç³å»÷ºÍ±¬Õ¨ÎÊÌâ¡£´ËÍâ£¬Ëü¶Ô´¦Àí½Ó´¥Ìõ¼þ±ä»¯µÄ¸ß¶È·ÇÏßÐÔÎÊÌâÒ²·Ç³£ÓÐÐ§£¨ÀýÈçÄ£Äâ³ÉÐÎÎÊÌâ£©¡£
-
 - ¿ÉÒÔ½øÐÐ**ÏÔÊ¾¶¯Ì¬·ÖÎö**¡£ÔÚÊ±¼äÓòÖÐÒÔºÜÐ¡µÄÊ±¼äÔöÁ¿²½ÏòÇ°ÍÆ³ö½á¹û£¬¶øÎÞÐèÔÚÃ¿¸öÔöÁ¿²½Çó½âñîºÏµÄ·½³ÌÏµÍ³»òÕßÉú³É×ÜÌå¸Õ¶È¾ØÕó¡£
+
+### µ¥ÔªÀàÐÍ£º
+
+- ¿Çµ¥Ôª£ºS3, S4(À­Éì¸Õ¶ÈÍêÈ«»ý·Ö£»¼ôÇÐ¸Õ¶ÈËõ¼õ»ý·Ö), S4R(Ëõ¼õ»ý·Ö) -- S £ºÐ¡Ó¦±äµ¥Ôª
+- Ìåµ¥Ôª£ºC3D4, C3D6, C3D8
+- Ëõ¼õ»ý·Öµ¥Ôª¿ÉÄÜ´æÔÚÉ³Â©£¬×îºÃÉèÖÃÌí¼ÓÉ³Â©¿ØÖÆ£»ÍêÈ«»ý·Öµ¥Ôª¿ÉÄÜ´æÔÚ¼ôÇÐ×ÔËø£¨ÊÕÁ²±äÂý£©£¬abaqusÄÚ²¿ÐÞÕýÏû³ýÁËS4µ¥Ôª¼ôÇÐ×ÔËø£¬ÎÞÐèÉèÖÃ¡£Ò»°ãÊ¹ÓÃS4µ¥Ôª¡£
+- 1D:
+  - BEAM: B31
+
+### ²ÄÁÏ£º
+
+- µ¯ÐÔ²ÄÁÏ
+  - [x] Density
+    - Density - 1e-09
+  - [x] Elastic
+    - Type - ISOTROPIC
+      - E - 210000
+      - NU - 0.3
+- µ¯ËÜÐÔ²ÄÁÏ
+  - [x] Density
+    - Density - 1e-09
+  - [x] Elastic
+    - Type - ISOTROPIC
+      - E - 210000
+      - NU - 0.3
+  - [x] Plastic - Hardening
+    - Type - ISOTROPIC
+    - PLASTICDATA
+
+### ÊôÐÔ£º
+
+- *MASS
+- BEAM SECTION
+  - No auto prefix for names
+  - SectionType - CIRC
+  - Section Axis
+- SHELL SECTION
+  - No auto prefix for names
+  - Thickness
+- SOLID SECTION
+  - No auto prefix for names
+
+### Á¬½Ó£º
+
+- º¸µã£ºacmµ¥Ôª£»diameter=6mm
+
+- Õ³½º£ºADHESIVEµ¥Ôª
+
+- ÂÝË¨£ºkincoup¸ÕÐÔµ¥Ôª
+
+### ½Ó´¥£º
+
+- *SURFACE
+- *CONTACT PAIR
+
+### ¼ÓÔØ£º
+
+- SPC - *BOUNDARY - INITIAL_CONDITION
+- LOAD - *CLOAD - HISTORY
+- LOAD STEP - *STEP
+  - ½Ó´¥²»¹´Ñ¡Ä¬ÈÏÈ«²¿ÉúÐ§
+  - Loadcol - ¹´Ñ¡·ÇINITIAL¼ÓÔØ
+  - Outputblock - Êä³ö
+  - Procedure - Static
+    - [x] Dataline
+
+### Êä³ö£º
+
+- *OUTPUT
+  - HISTORY
+  - PRESELECT
+
+### ºó´¦Àí£º
+
+  ?	S-Stress components(s) - Mises - Advanced Ó¦Á¦
+
+  ?	PEEQ-Equivalent plastic strain - Scalar value - Advanced Ó¦±ä
+
+----
 
 ## LS-Dyna
 
@@ -37,17 +116,19 @@ LS-DynaÒÔLagrangeËã·¨ÎªÖ÷£¬¼æÓÐALEºÍEulerËã·¨£»ÒÔÏÔÊ½Çó½âÎªÖ÷£¬¼æÓÐÒþÊ½Çó½â¹¦ÄÜ£
 
 Í¨¹ýÈçÏÂ¹Ø¼ü×Ö¼¤»î
 
-`*CONTROL_IMPLICIT_GENERAL`ÏÔ¡¢ÒþÊ½·ÖÎöÇÐ»»
+`*CONTROL_IMPLICIT_GENERAL` ÏÔ¡¢ÒþÊ½·ÖÎöÇÐ»»
 
-`*CONTROL_IMPLICIT_AUTO`×Ô¶¯µ÷ÕûÒþÊ½·ÖÎöÊ±¼ä²½
+`*CONTROL_IMPLICIT_AUTO` ×Ô¶¯µ÷ÕûÒþÊ½·ÖÎöÊ±¼ä²½
 
-`*CONTROL_IMPLICIT_SOLUTION`ÒþÊ½Çó½â¿ØÖÆ¿¨Æ¬
+`*CONTROL_IMPLICIT_SOLUTION` ÒþÊ½Çó½â¿ØÖÆ¿¨Æ¬
 
-### MPP£º
+### MPP:
 
 Linux£ºOpen MPI, Platform MPI(PBS)
 
 Windows£ºMicrosoft MPI
+
+----
 
 ## Optistruct
 
@@ -58,6 +139,8 @@ Windows£ºMicrosoft MPI
 ### Topology:
 
 
+
+----
 
 ## Nastran
 
@@ -73,9 +156,15 @@ SOL 112 Ä£Ì¬Ë²Ì¬ÆµÂÊÏìÓ¦·ÖÎö
 
 SOL400/600 ·ÇÏßÐÔ·ÖÎö
 
-### Æ£ÀÍ·ÖÎö - Ó¦±ä-ÊÙÃü·¨(e-N)£º
+### Æ£ÀÍ·ÖÎö - Ó¦±ä-ÊÙÃü·¨(E-N)£º
 
 E-NÇúÏß£ºÇ¿¶ÈÏµÊý[Sf]¡¢Ç¿¶ÈÖ¸Êý[b]¡¢ÑÓÐÔÖ¸Êý[c]¡¢ÑÓÐÔÏµÊý[Ef]¡¢Ñ­»·Ó¦±äÓ²»¯Exp [n]¡¢Ñ­»·Ç¿¶ÈÏµÊý[K¡¯]ºÍ·´Ïò½ØÖ¹[Nc]
 
 Æ£ÀÍ½á¹û£ºÊÙÃü¡¢ËðÉË¡¢E-N·¨×î´ó/×îÐ¡Ó¦±ä¡¢°²È«ÏµÊýµÈ
+
+### Æ£ÀÍ·ÖÎö - Ó¦Á¦-ÊÙÃü·¨(S-N)£º
+
+±£ÊØ·½·¨£º×î´óÓ¦Á¦²»³¬¹ýÇü·þÇ¿¶ÈµÄ50%¡£
+
+¾«È··½·¨£ºS-NÇúÏß
 
