@@ -1,20 +1,47 @@
 # Introduction
 一些有限元仿真模型实例。
 
-前处理使用hypermesh。
+前处理一般使用hypermesh；Ls-Dyna部分使用Ls-Prepost。
+
+### 分析类型：
+
+- 静力学分析 - 线性、非线性
+- 动力学分析
+- 模态分析 - 线性
+  - 正则模态分析
+  - 谐响应分析
+  - 模态瞬态分析
+- 线性屈曲分析
+- 热传导分析
+- 热力耦合分析
+- 多体动力学分析
+  - 刚体动力学分析
+  - 刚柔耦合分析
+- 显示动力学分析
+  - 成型分析
+  - 切削分析
+- 优化分析
+
+### 一般应用：
+
+- ABAQUS - 非线性静力分析
+  1. <u>mod_close_static.inp</u> - 车门过开隐式静力非线性分析
+- Nastran - 线性分析静力分析
+- LS-Dyna - 显示动力非线性分析
+- Optistruct - 结构优化；模态、频响分析（Nastran）
+- Adams - 多体动力分析 - 刚体、柔性体
 
 # Contents
 
 -  [<u>ABAQUS</u>](#ABAQUS)
+-  [<u>Nastran</u>](#Nastran)
 -  [<u>LS-Dyna</u>](#LS-Dyna)
 -  [<u>Optistruct</u>](#Optistruct)
-- [<u>Nastran</u>](#Nastran)
-
-
+-  [<u>Adams</u>](#Adams) 
 
 ----
 
-## ABAQUS
+## Abaqus
 
 ### Standard: 
 
@@ -34,6 +61,9 @@
 - 缩减积分单元可能存在沙漏，最好设置添加沙漏控制；完全积分单元可能存在剪切自锁（收敛变慢），abaqus内部修正消除了S4单元剪切自锁，无需设置。一般使用S4单元。
 - 1D:
   - BEAM: B31
+  - COUP_KIN - WASHER
+  - KINCOUP - 连接MASS点
+  - MASS
 
 ### 材料：
 
@@ -58,7 +88,7 @@
 ### 属性：
 
 - *MASS
-- BEAM SECTION
+- BEAM SECTION - beam属性通过hyperbeam建立
   - No auto prefix for names
   - SectionType - CIRC
   - Section Axis
@@ -80,6 +110,7 @@
 
 - *SURFACE
 - *CONTACT PAIR
+- *SURFACE INTERACTION - 属性里
 
 ### 加载：
 
@@ -100,9 +131,41 @@
 
 ### 后处理：
 
-  ?	S-Stress components(s) - Mises - Advanced 应力
+- S-Stress components(s) - Mises - Advanced 应力
+- PEEQ-Equivalent plastic strain - Scalar value - Advanced 应变
 
-  ?	PEEQ-Equivalent plastic strain - Scalar value - Advanced 应变
+### Tips：
+
+- abaqus不支持 "."，否则报错，命名时要避免
+- 接触面必须连续
+
+----
+
+## Nastran
+
+SOL 101 静力学分析
+
+SOL 103 正则模态分析
+
+SOL 105 屈曲分析（惯性释放）
+
+SOL 111 模态频率响应分析
+
+SOL 112 模态瞬态频率响应分析
+
+SOL400/600 非线性分析
+
+### 疲劳分析 - 应变-寿命法(E-N)：
+
+E-N曲线：强度系数[Sf]、强度指数[b]、延性指数[c]、延性系数[Ef]、循环应变硬化Exp [n]、循环强度系数[K’]和反向截止[Nc]
+
+疲劳结果：寿命、损伤、E-N法最大/最小应变、安全系数等
+
+### 疲劳分析 - 应力-寿命法(S-N)：
+
+保守方法：最大应力不超过屈服强度的50%。
+
+精确方法：S-N曲线
 
 ----
 
@@ -140,31 +203,26 @@ Windows：Microsoft MPI
 
 
 
-----
+---
 
-## Nastran
+## Adams
 
-SOL 101 静力学分析
+### 载荷提取：
 
-SOL 103 正则模态分析
 
-SOL 105 屈曲分析（惯性释放）
 
-SOL 111 模态频率响应分析
+### 多刚体：
 
-SOL 112 模态瞬态频率响应分析
 
-SOL400/600 非线性分析
 
-### 疲劳分析 - 应变-寿命法(E-N)：
+### 柔性体：
 
-E-N曲线：强度系数[Sf]、强度指数[b]、延性指数[c]、延性系数[Ef]、循环应变硬化Exp [n]、循环强度系数[K’]和反向截止[Nc]
 
-疲劳结果：寿命、损伤、E-N法最大/最小应变、安全系数等
 
-### 疲劳分析 - 应力-寿命法(S-N)：
+---
 
-保守方法：最大应力不超过屈服强度的50%。
+## 注：
 
-精确方法：S-N曲线
+1. Nastran主程序必须以管理员权限运行。
+2. 疲劳分析 ncode - Nastran；fe-safe - Abaqus。
 
