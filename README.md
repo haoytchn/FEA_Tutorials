@@ -3,7 +3,7 @@
 
 前处理一般使用hypermesh；Ls-Dyna部分使用Ls-Prepost。
 
-### 分析类型：
+### 分析类型
 
 - 静力学分析 - 线性、非线性
 - 动力学分析
@@ -22,7 +22,7 @@
   - 切削分析
 - 优化分析
 
-### 一般应用：
+### 一般应用
 
 - ABAQUS - 非线性静力分析
   1. <u>mod_close_static.inp</u> - 车门过开隐式静力非线性分析
@@ -30,6 +30,8 @@
 - LS-Dyna - 显示动力非线性分析
 - Optistruct - 结构优化；模态、频响分析（Nastran）
 - Adams - 多体动力分析 - 刚体、柔性体
+
+---
 
 # Contents
 
@@ -40,6 +42,8 @@
 -  [<u>Adams</u>](#Adams) 
 
 ----
+
+# Application
 
 ## Abaqus
 
@@ -219,10 +223,19 @@ Windows：Microsoft MPI
 
 
 
+
+> **注：**
+> 
+> 1. Nastran主程序必须以管理员权限运行。
+> 2. 疲劳分析 ncode - Nastran；fe-safe - Abaqus。
+
 ---
 
-## 注：
+# Theory
 
-1. Nastran主程序必须以管理员权限运行。
-2. 疲劳分析 ncode - Nastran；fe-safe - Abaqus。
+## 隐式求解 - 求解刚度矩阵
+
+
+
+## 显示求解 - 中心差分算法
 
