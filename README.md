@@ -24,9 +24,14 @@
 
 ### 一般应用
 
-- ABAQUS - 非线性静力分析
-  1. <u>mod_close_static.inp</u> - 车门过开隐式静力非线性分析
+- ABAQUS Standard - 非线性静力分析
+  1. mod_close_static.inp - 车门过开静力非线性分析
 - Nastran - 线性分析静力分析
+  1. xxx.bdf - 刚度分析
+  2. xxx.bdf - 惯性释放法强度分析
+  3. xxx.bdf - 模态分析
+  4. xxx.bdf - 频率响应分析
+
 - LS-Dyna - 显示动力非线性分析
 - Optistruct - 结构优化；模态、频响分析（Nastran）
 - Adams - 多体动力分析 - 刚体、柔性体
@@ -68,6 +73,7 @@
   - COUP_KIN - WASHER
   - KINCOUP - 连接MASS点
   - MASS
+  - SPRING2 - 弹簧
 
 ### 材料：
 
@@ -135,8 +141,13 @@
 
 ### 后处理：
 
-- S-Stress components(s) - Mises - Advanced 应力
-- PEEQ-Equivalent plastic strain - Scalar value - Advanced 应变
+- S-Stress components(s) - Mises - Advanced 应力→S, Mises真实应力
+- PEEQ-Equivalent plastic strain - Scalar value - Advanced 应变→等效塑性应变PEEQ（>0则表明屈服）
+- 以下参考：
+  - →LE真实应变
+  - →EE弹性应变
+  - →NE名义应变
+  - 隐式分析无法准确模拟塑性变形过大破坏过程，需要用显示分析
 
 ### Tips：
 
@@ -158,6 +169,97 @@ SOL 111 模态频率响应分析
 SOL 112 模态瞬态频率响应分析
 
 SOL400/600 非线性分析
+
+```NASTRAN
+SOL 101
+TIME   6000.0
+…
+执行控制Executive Control（求解类型、时间容许、系统诊断）
+CEND
+
+情况控制Case Control（输出要求、选择模型数据集项目）
+
+BEGIN BULK
+数据模型Bulk Data（结构模型定义，求解条件参数）
+
+ENDDATA
+```
+
+### 单元类型：
+
+- 壳单元：
+  - CQUAD4, Quadrilateral Plate Element Connection
+  - CTRIA3, Four-Sided Solid Element Connection
+
+- 体单元：
+  - CTETRA, Four-Sided Solid Element Connection
+  - CHEXA, Six-Sided Solid Element Connection
+
+- 1D:
+  - CBEAM - BEAM
+  - CGAP - Gap Element Connection， 间隙单元, 需要属性PGAP定义刚度KA -1000
+  - CBUSH - Generalized Spring-and-Damper Connection, 线性非线性弹簧或阻尼, 需要定义属性PBUSH, K1-K3
+    - PBUSH - Generalized Spring-and-Damper Property
+  - RBE2 - WASHER, 允许RBE2间互相连接
+  - CONM2 - Concentrated Mass Element Connection, Rigid Body Form - MASS点
+
+### 材料：
+
+- 弹性材料 - MAT1
+
+### 属性：
+
+- PSHELL
+- PSOLID
+- PBEAM - Beam Property
+- PBEAM - Beam Cross-Section Property
+
+### 连接：
+
+- 焊点：acm单元；diameter=6mm
+- 粘胶：ADHESIVE单元
+
+- 螺栓：kincoup刚性单元
+
+### 惯性释放：
+
+惯性释放就是用结构的惯性力来平衡外力。尽管结构没有约束，分析时仍假设其处于一种“静态”的平衡状态。(不只适用于外力平衡情况，还能够计算具有惯性（外力不平衡）的结构的应力分布。)
+
+有载荷无约束结构，要按一般的线性静力求解方法必须人为虚构约束，消除结构刚体位移。虚构约束的最佳位置是实际受力时结构中没有变形的区域。
+
+- Parameters 
+  - INREL - "-2" - 软件自动定义
+
+### 加载：
+
+- LOAD - 静荷载组合(叠加)
+  - GRAV - Acceleration or Gravity Load
+  - FORCE - Static Force
+  - FORCE1 - 跟随力，类似火箭尾推，方向随网格变形变动
+  - MOMENT - Static Moment
+
+- SUBCASE - Load Steps 工况分隔 - Case Control Commands
+  - OUTPUT
+  - DISPLACEMENT
+  - STRESS
+  - ANALYSIS - Analysis type - Linear Static;Normal Modes
+
+
+### 控制：
+
+- Executive Control
+  - SOL 101 - 求解类型
+  - TIME   6000.0 - 最大运行时间
+
+- Parameters - 静力分析
+  - POST - "-2" - 输出设置
+
+- Parameters - 惯性释放
+  - AUTOSPC - Yes
+  - INREL - "-2" - 惯性释放分析自动约束，消除刚体位移
+  - K6ROT - 100 - 刚度惩罚系数
+  - POST - "-2" - 输出设置
+
 
 ### 疲劳分析 - 应变-寿命法(E-N)：
 
@@ -238,4 +340,43 @@ Windows：Microsoft MPI
 
 
 ## 显示求解 - 中心差分算法
+
+## 金属材料
+
+### 材料的失效
+
+形式：磨损、腐蚀、断裂三种
+
+类型：韧性断裂（明显宏观塑性变形）、脆性断裂
+
+疲劳：高周疲劳σ＜σs，Nf>10^5；低周疲劳（有塑性变形）σ≥σs，Nf=10^2~10^5
+
+### 材料失效准则
+
+第一强度理论 - 最大主应力理论 - 最大应力
+
+第二强度理论 - 最大伸长线应变理论 - 延伸率
+
+第三强度理论 - 最大切应力理论 - Tresca强度τmax
+
+第四强度理论 - 形状改变比能理论 - von mises强度
+
+## 频率和模态
+
+### 为什么要计算固有频率和模态
+
+1. 评估结构的动力学特性。如安装在结构上的旋转设备，为避免其过大的振动，必须看转动部件的频率是否接近结构的任何一阶固有频率。
+2. 评估载荷的可能放大因子。
+3. 使用固有频率和正交模态，可以指导后续动态分析（如瞬态分析、响应谱分析、瞬态分析中时间步长Δt的选取等)
+4. 使用固有频率和正交模态，在结构瞬态分析时，可以用模态扩张法
+5. 指导实验分析，如加速度传感器的布置位置。
+6. 评估设计
+
+### 频率响应分析
+
+1. 计算震荡激励的响应
+2. 激励在频域中显式定义，在每频率点作用力已知
+3. 计算的响应通常包括节点位移、单元力和应力
+4. 计算的响应为复数、由大小、相位定义
+5. 频率响应分析分为直接法、模态法。
 
