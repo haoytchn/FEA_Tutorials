@@ -27,11 +27,10 @@
 - ABAQUS Standard - 非线性静力分析
   1. mod_close_static.inp - 车门过开静力非线性分析
 - Nastran - 线性分析静力分析
-  1. xxx.bdf - 刚度分析
-  2. xxx.bdf - 惯性释放法强度分析
+  1. hub_static.bdf - 轮毂静力、扭转刚度分析
+  2. inertia_relief.bdf - 惯性释放法强度分析
   3. xxx.bdf - 模态分析
   4. xxx.bdf - 频率响应分析
-
 - LS-Dyna - 显示动力非线性分析
 - Optistruct - 结构优化；模态、频响分析（Nastran）
 - Adams - 多体动力分析 - 刚体、柔性体
@@ -74,6 +73,8 @@
   - KINCOUP - 连接MASS点
   - MASS
   - SPRING2 - 弹簧
+  - RB2 - 一个主节点N从节点
+  - RB3 - 一个从节点跟随一群主节点运动，根据权重。用于配重质量点
 
 ### 材料：
 
@@ -114,7 +115,7 @@
 
 - 粘胶：ADHESIVE单元
 
-- 螺栓：kincoup刚性单元
+- 螺栓：RB2
 
 ### 接触：
 
@@ -141,6 +142,7 @@
 
 ### 后处理：
 
+- odb文件
 - S-Stress components(s) - Mises - Advanced 应力→S, Mises真实应力
 - PEEQ-Equivalent plastic strain - Scalar value - Advanced 应变→等效塑性应变PEEQ（>0则表明屈服）
 - 以下参考：
@@ -196,6 +198,7 @@ ENDDATA
   - CHEXA, Six-Sided Solid Element Connection
 
 - 1D:
+  - CBAR - 简化BEAM，不具有变截面
   - CBEAM - BEAM
   - CGAP - Gap Element Connection， 间隙单元, 需要属性PGAP定义刚度KA -1000
   - CBUSH - Generalized Spring-and-Damper Connection, 线性非线性弹簧或阻尼, 需要定义属性PBUSH, K1-K3
@@ -211,15 +214,20 @@ ENDDATA
 
 - PSHELL
 - PSOLID
+- PBAR - Simple Beam Property
+- PBARL - Simple Beam Cross-Section Property 简单beam用PBARL
 - PBEAM - Beam Property
-- PBEAM - Beam Cross-Section Property
+- PBEAML - Beam Cross-Section Property
 
 ### 连接：
 
 - 焊点：acm单元；diameter=6mm
+
 - 粘胶：ADHESIVE单元
 
-- 螺栓：kincoup刚性单元
+- 螺栓：RB2单元
+
+  
 
 ### 惯性释放：
 
@@ -235,9 +243,10 @@ ENDDATA
 - LOAD - 静荷载组合(叠加)
   - GRAV - Acceleration or Gravity Load
   - FORCE - Static Force
+  - *RFORCE - Rotational Force, METHOD=2
   - FORCE1 - 跟随力，类似火箭尾推，方向随网格变形变动
   - MOMENT - Static Moment
-
+  
 - SUBCASE - Load Steps 工况分隔 - Case Control Commands
   - OUTPUT
   - DISPLACEMENT
@@ -250,15 +259,19 @@ ENDDATA
 - Executive Control
   - SOL 101 - 求解类型
   - TIME   6000.0 - 最大运行时间
-
 - Parameters - 静力分析
-  - POST - "-2" - 输出设置
-
+  - POST - "-1" - 输出设置
 - Parameters - 惯性释放
   - AUTOSPC - Yes
   - INREL - "-2" - 惯性释放分析自动约束，消除刚体位移
   - K6ROT - 100 - 刚度惩罚系数
-  - POST - "-2" - 输出设置
+  - POST - "-1" - 输出设置
+
+### 后处理：
+
+- op2文件
+- Stress - Advanced
+- Displacement
 
 
 ### 疲劳分析 - 应变-寿命法(E-N)：
